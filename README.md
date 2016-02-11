@@ -6,7 +6,7 @@ Instructions come from http://askubuntu.com/questions/206766/local-only-sendmail
 
 
 ## Using the role
-Here is an example playbook that uses the role for setting up mail delivery on a vagrant machine:
+Here is an example playbook that uses the role for setting up mail delivery on a [Vagrant](https://www.vagrantup.com/) machine:
 
 ```yml
 ---
