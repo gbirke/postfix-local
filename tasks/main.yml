@@ -1,0 +1,37 @@
+---
+
+# This playbook encapsulates the instructions from
+# http://askubuntu.com/questions/206766/local-only-sendmail-that-delivers-all-mail-to-a-directory
+
+- name: Install postfix
+  apt: pkg=postfix state=present
+  # TODO when postfix is not installed, check if we need to specify a release
+
+- name: Change smtp config
+  lineinfile: dest=/etc/postfix/master.cf regexp='^smtp\s+unix' line='smtp      unix  -       -       -       -       -       local'
+
+- name: Change relay config
+  lineinfile: dest=/etc/postfix/master.cf regexp='^relay ' line='relay     unix  -       -       -       -       -       local'
+
+- name: Create virtual file
+  copy: dest=/etc/postfix/virtual content='/.*/    {{ postfix_local_delivery_user }}' owner=root group=root
+
+- name: Create db file
+  command: postmap /etc/postfix/virtual creates=/etc/postfix/virtual.db
+
+- name: Set alias maps config
+  lineinfile: dest=/etc/postfix/main.cf line='virtual_alias_maps = regexp:/etc/postfix/virtual'
+  notify: restart postfix
+
+# Maildir config, as described at https://help.ubuntu.com/community/PostfixBasicSetupHowto
+- name: Set Maildir config
+  lineinfile: dest=/etc/postfix/main.cf line='home_mailbox = Mail/'
+  when: use_maildir
+
+- name: Remove mailbox command in config
+  lineinfile: dest=/etc/postfix/main.cf line='mailbox_command = /'
+  when: use_maildir
+  notify: restart postfix
+
+- name: Ensure postfix is started and enabled to start at boot.
+  service: name=postfix state=started enabled=yes

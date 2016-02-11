@@ -1,0 +1,3 @@
+---
+postfix_local_delivery_user: "{{ansible_user_id}}"
+use_maildir: false
