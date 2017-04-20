@@ -29,7 +29,10 @@
   when: use_maildir
 
 - name: Remove mailbox command in config
-  lineinfile: dest=/etc/postfix/main.cf line='mailbox_command = /'
+  lineinfile: 
+    dest: /etc/postfix/main.cf 
+    line: 'mailbox_command ='
+    regexp: mailbox_command
   when: use_maildir
   notify: restart postfix
 
